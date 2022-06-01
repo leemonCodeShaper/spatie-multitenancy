@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
+use Illuminate\Validation\Rules\Password;
 
 class RegisteredUserController extends Controller
 {
@@ -35,7 +36,7 @@ class RegisteredUserController extends Controller
     {
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:tenant.users'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
@@ -50,5 +51,27 @@ class RegisteredUserController extends Controller
         Auth::login($user);
 
         return redirect(RouteServiceProvider::HOME);
+    }
+
+    public function register(Request $request){
+        $data  = $request->validate([
+            'name' =>  'required|string',
+            'email' =>  'required|email|string|unique:users,email',
+            'password' =>  [
+                'required',
+                'confirmed',
+                Password::min(8)
+            ],
+        ]);
+
+        $user = User::create([
+            'name'=> $data['name'],
+            'email'=> $data['email'],
+            'password'=> bcrypt($data['password']),
+        ]);
+
+        $token = $user->createToken('main')->plainTextToken;
+
+        return 'success';
     }
 }

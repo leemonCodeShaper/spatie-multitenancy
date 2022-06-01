@@ -24,6 +24,19 @@ Route::get('/dashboard', function () {
 require __DIR__.'/auth.php';
 
 // Tenant aware Routes need to include this 'tenant' middleware
-Route::middleware('tenant')->group(function() {
-    // routes
+Route::prefix('/tenant')->middleware('tenant')->group(function() {
+    require __DIR__.'/auth.php';
+
+    Route::get('/database', function () {
+        try {
+            \DB::connection()->getPDO();
+            echo \DB::connection()->getDatabaseName();
+        } catch (\Exception $e) {
+            echo 'None';
+        }
+    });
+
+    Route::get('/test', function () {
+        return auth()->user();
+    });
 });

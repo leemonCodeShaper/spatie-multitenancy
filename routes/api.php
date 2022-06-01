@@ -1,7 +1,9 @@
 <?php
 
+use App\Http\Controllers\Auth\RegisteredUserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use Spatie\Multitenancy\Models\Tenant;
 
 /*
 |--------------------------------------------------------------------------
@@ -17,3 +19,18 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
+
+Route::post('/register',[RegisteredUserController::class,'register']);
+
+Route::get('/tenant/create', function (Request $request){
+
+    Tenant::create([
+        'name'=>$request->name,
+        'domain'=>$request->domain,
+        'database'=>$request->database,
+        'address'=>$request->address,
+        'phone'=>$request->phone,
+    ]);
+    return 'successfully create';
+});
+
